@@ -3,16 +3,30 @@ import { useEffect } from 'react';
 import API from '../../api/axios';
 import api from '../../api/axios'; 
 import { TaskCreateToggle } from './TaskCreator';
-function Filters() {
+
+function Filters({ onFilterChange, activeFilter }) {
+  const filters = ['all', 'pending', 'in-progress', 'completed'];
+
   return (
     <div className="filters mb-4 flex flex-wrap gap-2">
-      <button className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">All</button>
-      <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Completed</button>
-      <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Pending</button>
-      <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">In Progress</button>
+      {filters.map((f) => (
+        <button
+          key={f}
+          onClick={() => onFilterChange(f)}
+          className={`px-4 py-2 rounded-lg transition ${
+            activeFilter === f
+              ? 'bg-cyan-500 text-white'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          {f.charAt(0).toUpperCase() + f.slice(1).replace('-', ' ')}
+        </button>
+      ))}
     </div>
   );
 }
+
+
 
 const TaskItem = ({ title, status, project, dueDate, assignedTo, description }) => {
   const [showModal, setShowModal] = useState(false);
@@ -142,57 +156,100 @@ const TaskItem = ({ title, status, project, dueDate, assignedTo, description }) 
 
 
 function Task() {
-    const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    API.get('tasks/')
-      .then((res) => setTasks(res.data))
-      .catch((err) => console.error(err));
 
-      console.log(tasks ,"tasks data");
-  }, []);
+  const refreshTasks = () => {
+  setLoading(true);
+
+  const url = filter === 'all' ? 'tasks/' : `tasks/?status=${filter}`;
+  API.get(url)
+    .then((res) => {
+      // Add a short delay for smooth transition (optional)
+      setTimeout(() => {
+        setTasks(res.data);
+        setLoading(false);
+      }, 300);
+    })
+    .catch((err) => {
+      console.error(err);
+      setLoading(false);
+    });
+};
+
+
+
+useEffect(() => {
+  refreshTasks();
+  console.log("Fetching tasks with filter:", tasks);
+}, [filter]);
+
+
+  const handleFilterChange = (status) => {
+    setFilter(status);
+    refreshTasks(status);
+  };
+
   return (
     <div className="mx-auto">
       <div className="search mt-4 mb-6">
-        <TaskCreateToggle />
-        <input
+        <TaskCreateToggle onTaskCreated={() => refreshTasks(filter)} />
+
+        {/* <input
           type="text"
           placeholder="Search tasks..."
           className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"
-        />
+        /> */}
       </div>
-      <Filters />
-      <div className="taskitemslist">
-        <table className="min-w-full divide-y divide-gray-200">
-  <thead className="bg-gray-100">
-    <tr>
-      <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Title</th>
-      <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Status</th>
-      <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Priority</th>
-      <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Due Date</th>
-      <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Assigned To</th>
-      <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Actions</th>
-    </tr>
-  </thead>
-  <tbody className="divide-y divide-gray-100 bg-white">
-    {tasks.map((task) => (
-      <TaskItemRow
-        key={task.id}
-        title={task.title}
-        status={task.status}
-        priority={task.priority}
-        dueDate={new Date(task.due_date).toLocaleDateString()}
-        assignedTo={task.assigned_to_username}
-        description={task.description}
-      />
+
+      <Filters onFilterChange={setFilter} activeFilter={filter} />
+
+
+      <div className="taskitemslist overflow-x-auto table-responsive">
+        <table className="table-auto min-w-full divide-y divide-gray-200 border border-separate border-spacing-2">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Title</th>
+              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Status</th>
+              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Priority</th>
+              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Due Date</th>
+              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Assigned To</th>
+              <th className="px-4 py-2 text-left text-sm font-semibold text-gray-700">Actions</th>
+            </tr>
+          </thead>
+          <tbody
+  className={`divide-y divide-gray-100 bg-white transition-opacity duration-300 ${
+    loading ? 'opacity-50' : 'opacity-100'
+  }`}
+>
+  {tasks.map((task) => (
+    <TaskItemRow
+      key={task.id}
+      title={task.title}
+      status={task.status}
+      priority={task.priority}
+      dueDate={new Date(task.due_date).toLocaleDateString()}
+      assignedTo={
+  <div className="flex -space-x-3">
+    {task.collaborators.map((user, index) => (
+      <div
+        key={user.id}
+        className="w-8 h-8 rounded-full bg-cyan-600 text-white flex items-center justify-center text-sm font-semibold border-2 border-white shadow-md"
+        style={{ zIndex: task.collaborators.length - index }}
+        title={user.username}
+      >
+        {user.username.charAt(0).toUpperCase()}
+      </div>
     ))}
-  </tbody>
-</table>
-
-
-       
-      
-        
+  </div>
+}
+      description={task.description}
+    />
+  ))}
+</tbody>
+        </table>
       </div>
     </div>
   );
@@ -280,6 +337,7 @@ function TaskForm() {
 
 
 const TaskItemRow = ({ title, status, priority, dueDate, assignedTo, description }) => {
+  console.log("assignedTo:", assignedTo);
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editStatus, setEditStatus] = useState(status);
@@ -300,15 +358,15 @@ const TaskItemRow = ({ title, status, priority, dueDate, assignedTo, description
 
   return (
     <>
-      <tr className="hover:bg-yellow-50 transition">
+      <tr className="hover:bg-yellow-50 transition duration-200">
         <td className="px-4 py-2 text-sm text-gray-800 font-medium">{title}</td>
         <td className="px-4 py-2 text-sm">
           <span
-            className={`px-2 py-1 rounded-full text-xs font-semibold ${
-              status === 'Completed'
+            className={`px-2 py-1 rounded-full text-xs font-semibold font-capitalize ${
+              status === 'completed'
                 ? 'bg-green-100 text-green-700'
-                : status === 'In Progress'
-                ? 'bg-yellow-100 text-yellow-700'
+                : status === 'in-progress'
+                ? 'bg-blue-100 text-blue-700'
                 : 'bg-red-100 text-red-600'
             }`}
           >

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 const Button = ({ children, onClick, className }) => (
   <button
     onClick={onClick}
@@ -16,6 +16,7 @@ function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,6 +33,7 @@ function Login() {
         localStorage.setItem('access', res.data.access);
         localStorage.setItem('refresh', res.data.refresh);
         alert('Login successful!');
+        navigate('/dashboard');
       } else {
         await axios.post('http://localhost:8000/auth/register/', formData);
         alert('Registration successful! You can now log in.');

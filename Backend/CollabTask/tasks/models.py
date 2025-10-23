@@ -4,7 +4,7 @@ from django.db import models
 class Task(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
-        ('in_progress', 'In Progress'),
+        ('in-progress', 'In Progress'),
         ('completed', 'Completed'),
     ]
     PRIORITY_CHOICES = [

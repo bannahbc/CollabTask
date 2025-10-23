@@ -2,25 +2,66 @@ import logo from './logo.svg';
 import './App.css';
 import Login from './components/Auth/login';
 import Sidebar from './components/Navbar/Navbar';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter,Route,Routes,Navigate} from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
 import Task from './components/Task/Task';
+import Settings from './components/Settings/Settings';
+import { Children } from 'react';
+
+{/* <Login  className="bg-gray-600 min-h-screen flex items-center justify-center" /> */}
+
+function Dashboard({Children}) {
+  return (
+    <div className="flex flex-col md:flex-row h-screen bg-gray-200 font-sans">
+      <Sidebar />
+      <main className="flex-1 bg-gray-100 p-6 overflow-auto">
+        <h1 className="text-3xl font-extrabold text-gray-800 tracking-wide mb-4">Tasks</h1>
+        <hr className="mb-4" />
+
+        {Children}
+      </main>
+    </div>
+  );
+}
+
 
 function App() {
   return (
     <BrowserRouter>
-    <div className="App flex h-screen font-extrabold tracking-wide bg-gray-200">  
-      {/* <Login  className="bg-gray-600 min-h-screen flex items-center justify-center" /> */}
-      <Sidebar />
-      
-        {/* Main Content */}
-      <div className="flex-1 bg-gray-100 p-6 overflow-auto">
-        <h1 className="text-3xl font-bold mb-4">Tasks</h1>
-        <hr />
-          <Task />
-       
-      </div>
-      {/* <Login /> */}
-    </div>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        {/* <Route path="/register" element={<Register />} /> */}
+
+        {/* Protected Routes with Sidebar */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard Children={<Task />} />
+            </PrivateRoute>
+          }
+        />
+        {/* <Route
+          path="/tasks"
+          element={
+            <PrivateRoute>
+              <TaskPage />
+            </PrivateRoute>
+          }
+        /> */}
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Dashboard Children={<Settings />} />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Catch-all */}
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
     </BrowserRouter>
   );
 }

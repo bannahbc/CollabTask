@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import register_user,EmailLoginView
+from .views import register_user,EmailLoginView, UserListView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib import admin
 urlpatterns = [
@@ -8,6 +8,8 @@ urlpatterns = [
     path('auth/login/', EmailLoginView.as_view(), name='email_login'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    path('api/', include('tasks.urls'),name='apis')
+    path('api/', include('tasks.urls'),name='apis'),
+
+    path('api/users/', UserListView.as_view(), name='user-list'),
     
 ]

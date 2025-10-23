@@ -1,26 +1,27 @@
+# serializers.py
 from rest_framework import serializers
-from .models import Task
 from django.contrib.auth.models import User
+from .models import Task
+
+class UserSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']  # Add more fields if needed
 
 class TaskSerializer(serializers.ModelSerializer):
-    collaborators = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True, required=False)
+    owner = UserSummarySerializer(read_only=True)
+    collaborators = UserSummarySerializer(many=True, read_only=True)
+    collaborator_ids = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        many=True,
+        write_only=True,
+        source='collaborators'
+    )
 
     class Meta:
         model = Task
-        fields = '__all__'
-        read_only_fields = ['owner', 'created_at', 'updated_at']
-
-    def create(self, validated_data):
-        collaborators = validated_data.pop('collaborators', [])
-        task = Task.objects.create(owner=self.context['request'].user, **validated_data)
-        task.collaborators.set(collaborators)
-        return task
-
-    def update(self, instance, validated_data):
-        collaborators = validated_data.pop('collaborators', None)
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        if collaborators is not None:
-            instance.collaborators.set(collaborators)
-        return instance
+        fields = [
+            'id', 'title', 'description', 'status', 'priority', 'due_date',
+            'owner', 'collaborators', 'collaborator_ids',
+            'created_at', 'updated_at'
+        ]
