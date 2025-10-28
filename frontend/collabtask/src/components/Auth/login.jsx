@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { showError, showSuccess } from '../../utils/Alert/SweetAlert';
 const Button = ({ children, onClick, className }) => (
   <button
     onClick={onClick}
@@ -32,83 +33,115 @@ function Login() {
         });
         localStorage.setItem('access', res.data.access);
         localStorage.setItem('refresh', res.data.refresh);
-        alert('Login successful!');
+        localStorage.setItem('email', JSON.stringify(res.data.email));
+        localStorage.setItem('username', JSON.stringify(res.data.username));
+        // alert('Login successful!');
+        showSuccess('Login successful!');
+        console.log(res.data);
         navigate('/dashboard');
       } else {
         await axios.post('http://localhost:8000/auth/register/', formData);
-        alert('Registration successful! You can now log in.');
+        // alert('Registration successful! You can now log in.');
+        showSuccess('Registration successful! You can now log in.');
         setIsLogin(true);
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Something went wrong');
+      console.log(err.response.data);
+      showError(err.response.data.error || 'Something went wrong');
+      // setError(err.response?.data?.detail || 'Something went wrong');
     }
   };
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="navtop absolute top-0 left-0 w-full flex items-center justify-center h-16 bg-white shadow-md">
-        <div className="text-3xl font-extrabold text-blue-600 cursor-pointer">Collab Task</div>
-      </div>
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="bg-blue-800 p-8 rounded-lg shadow-lg w-full max-w-md text-white shadow-2xl shadow-gray-900">
-          <h2 className="text-2xl font-bold mb-6 text-center">
-            {isLogin ? 'Login Page' : 'Register Page'}
-          </h2>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {!isLogin && (
-              <div>
-                <label htmlFor="username" className="block mb-1 text-sm font-medium">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 rounded bg-gray-300 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-            )}
-            <div>
-              <label htmlFor="email" className="block mb-1 text-sm font-medium">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="block mb-1 text-sm font-medium">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              {isLogin ? 'Login' : 'Register'}
-            </Button>
-            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-          </form>
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-white hover:underline text-sm"
-            >
-              {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white relative overflow-hidden">
+  {/* Top Nav */}
+  <div className="absolute top-0 left-0 w-full h-16 flex items-center justify-center z-10">
+    <div className="text-3xl font-extrabold text-indigo-400 cursor-pointer tracking-wide">
+      Collab Task
+    </div>
+  </div>
+
+  {/* Form Container */}
+  <div className="flex justify-center items-center min-h-screen pt-20 px-4">
+    <div className="bg-white/10 backdrop-blur-md border border-white/20 shadow-xl p-8 rounded-2xl w-full max-w-md transition-all duration-500 ease-in-out">
+      <h2 className="text-3xl font-bold mb-6 text-center tracking-tight text-white">
+        {isLogin ? 'Login to Your Account' : 'Create an Account'}
+      </h2>
+
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        {!isLogin && (
+          <div>
+            <label htmlFor="username" className="block mb-1 text-sm font-medium text-indigo-100">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-white/70"
+              required
+              placeholder="Enter username"
+            />
           </div>
+        )}
+
+        <div>
+          <label htmlFor="email" className="block mb-1 text-sm font-medium text-indigo-100">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-white/70"
+            required
+            placeholder="Enter email"
+          />
         </div>
+
+        <div>
+          <label htmlFor="password" className="block mb-1 text-sm font-medium text-indigo-100">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full px-4 py-2 rounded bg-white/20 text-white border border-white/30 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-white/70"
+            required
+            placeholder="Enter password"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          className="w-full bg-indigo-600 hover:bg-indigo-700 transition text-white font-semibold py-2 rounded"
+        >
+          {isLogin ? 'Login' : 'Register'}
+        </Button>
+
+        {error && <p className="text-red-400 text-sm mt-2 text-center">{error}</p>}
+      </form>
+
+      <div className="mt-6 text-center">
+        <button
+          onClick={() => setIsLogin(!isLogin)}
+          className="text-indigo-300 hover:text-white hover:underline text-sm transition"
+        >
+          {isLogin ? "Don't have an account? Register" : "Already have an account? Login"}
+        </button>
       </div>
     </div>
+  </div>
+</div>
+
+
   );
 }
 

@@ -39,7 +39,6 @@
 //           </svg>
 //         </button>
 
-       
 //         {/* Navigation Links */}
 //         <ul className="space-y-4">
 //           <li>
@@ -117,32 +116,49 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../../utils/logout";
 import { Link } from "react-router-dom";
 
-const menuitems=[
-    {name:'Add Task',link:'/dashboard',icon:'➕'},
-    {name:'Dashboard',link:'/dashboard',icon:'🏠'},
-    {name:'Tasks',link:'/tasks',icon:'📋'},
-    {name:'Settings',link:'/settings',icon:'⚙️'},
-]
+const menuitems = [
+  // {name:'Add Task',link:'/dashboard',icon:'➕'},
+  // {name:'Dashboard',link:'/dashboard',icon:'🏠'},
+  { name: "Tasks", link: "/tasks", icon: "📋" },
+  { name: "Settings", link: "/settings", icon: "⚙️" },
+];
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = React.useState(true);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
+  // const user = JSON.parse(localStorage.getItem('email')) || {
+  //   name: 'Hasanul',
+  //   email: 'hasanul@example.com',
+  // };
+  const email = JSON.parse(localStorage.getItem("email")) || "";
+  const username =
+    JSON.parse(localStorage.getItem("username")) ||
+    email.substring(0, email.indexOf("@")) ||
+    "User";
+  // const username = email.substring(0, email.indexOf('@')) || 'User';
 
   return (
     <>
       {/* ======= MOBILE NAVBAR ======= */}
       <div className="flex items-center justify-between bg-cyan-50 p-4 shadow-md md:hidden">
         <h1 className="text-2xl font-extrabold text-gray-800">CT</h1>
-        <button onClick={() => setMobileOpen(!mobileOpen)}>
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="p-2 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 shadow-lg hover:scale-105 hover:bg-white/20 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
           <svg
-            className="w-6 h-6 text-gray-700"
+            className="w-6 h-6 text-white"
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </button>
       </div>
@@ -156,11 +172,13 @@ const Sidebar = () => {
         {/* ===== Title + Buttons ===== */}
         <div className="title flex items-center justify-between p-4 gap-3 border-b">
           <h1
-            className={`font-extrabold tracking-wide transition-all duration-300 ease-in-out ${
-              isOpen ? "text-3xl text-gray-800" : "text-xl text-blue-400"
+            className={`font-extrabold tracking-wide transition-all duration-300 ease-in-out cursor-pointer drop-shadow-md ${
+              isOpen
+                ? "text-3xl text-cyan-900 "
+                : "text-xl text-blue-400 hover:text-blue-900"
             }`}
           >
-            {isOpen ? "Collab Task" : "CT"}
+            <Link to="/dashboard">{isOpen ? "Collab Task" : "CT"}</Link>
           </h1>
 
           {/* desktop toggle button */}
@@ -175,15 +193,16 @@ const Sidebar = () => {
               strokeWidth="2"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
 
           {/* mobile close button */}
-          <button
-            onClick={() => setMobileOpen(false)}
-            className="md:hidden"
-          >
+          <button onClick={() => setMobileOpen(false)} className="md:hidden">
             <svg
               className="w-6 h-6 text-gray-400"
               fill="none"
@@ -191,48 +210,68 @@ const Sidebar = () => {
               strokeWidth="2"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
+        </div>
+        {/* ===== User Info ===== */}
+        <div className="flex items-center gap-4 p-4 border-b border-white/20 bg-white/5 backdrop-blur-sm rounded-xl shadow-sm hover:bg-white/10 transition-all duration-300">
+          {/* Avatar */}
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 text-white flex items-center justify-center text-lg font-bold shadow-xl ring-2 ring-white/30 shadow-blue-200">
+            {username?.charAt(0).toUpperCase()}
+          </div>
+
+          {/* User Details */}
+          {isOpen && (
+            <div className="flex flex-col transition-opacity duration-300">
+              <p className="text-sm font-semibold leading-tight">{username}</p>
+              <p className="text-xs ">{email}</p>
+            </div>
+          )}
         </div>
 
         {/* ===== Menu Items ===== */}
         <div className="menuitems">
-  <ul className="flex flex-col gap-4 p-4">
-    {menuitems.map((item, index) => (
-      <li key={index}>
-        <Link
-          to={item.link}
-          className="text-white bg-green-900 shadow-xl hover:bg-cyan-700 p-2 rounded-lg cursor-pointer flex items-center gap-3"
-        >
-          {/* Hide icons on mobile, show on md+ */}
-          <span className="hidden md:inline text-lg">{item.icon}</span>
+          <ul className="flex flex-col gap-4 p-4">
+            {menuitems.map((item, index) => (
+              <li key={index}>
+                <Link
+                  to={item.link}
+                  className=" text-white bg-green-900 shadow-md hover:bg-cyan-900 p-2 rounded-lg cursor-pointer flex items-center gap-3 rounded-xl shadow-lg hover:shadow-green-700 hover:scale-105 transition-all duration-300 ease-in-out "
+                >
+                  {/* Hide icons on mobile, show on md+ */}
+                  <span className="  md:inline text-lg">{item.icon}</span>
 
-          {/* Show text on mobile always, on md+ only if expanded */}
-          <span
-            className={`text-md transition-all duration-300 ${
-              isOpen ? "md:inline" : "md:hidden"
-            }`}
-          >
-            {item.name}
-          </span>
-        </Link>
-      </li>
-    ))}
-  </ul>
-</div>
+                  {/* Show text on mobile always, on md+ only if expanded */}
+                  <span
+                    className={`text-md transition-all duration-300 ${
+                      isOpen ? "md:inline" : "md:hidden"
+                    }`}
+                  >
+                    {item.name}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <div className="p-4">
-      {/* ... other sidebar content ... */}
-      <button
-        onClick={() => logout(navigate)}
-        className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-      >
-        Logout
-      </button>
-    </div>
+          {/* ... other sidebar content ... */}
+          <button
+            onClick={() => logout(navigate)}
+            className="mt-6 w-full px-6 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-red-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-red-700 hover:scale-105 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+          >
+            <span className="inline-block transform transition-transform duration-300 group-hover:translate-x-1">
+              Logout
+            </span>
+          </button>
+        </div>
       </div>
-      
 
       {/* ===== Overlay for mobile ===== */}
       {mobileOpen && (

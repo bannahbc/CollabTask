@@ -10,12 +10,12 @@ import { Children } from 'react';
 
 {/* <Login  className="bg-gray-600 min-h-screen flex items-center justify-center" /> */}
 
-function Dashboard({Children}) {
+function Dashboard({Children,title}) {
   return (
     <div className="flex flex-col md:flex-row h-screen bg-gray-200 font-sans">
       <Sidebar />
       <main className="flex-1 bg-gray-100 p-6 overflow-auto">
-        <h1 className="text-3xl font-extrabold text-gray-800 tracking-wide mb-4">Tasks</h1>
+        <h1 className="text-3xl font-extrabold text-gray-800 tracking-wide mb-4">{title}</h1>
         <hr className="mb-4" />
 
         {Children}
@@ -38,7 +38,15 @@ function App() {
           path="/dashboard"
           element={
             <PrivateRoute>
-              <Dashboard Children={<Task />} />
+              <Dashboard Children={<Task />} title={"Dashboard"} />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/tasks"
+          element={
+            <PrivateRoute>
+              <Dashboard Children={<Task />} title={"Tasks"} />
             </PrivateRoute>
           }
         />
@@ -54,7 +62,7 @@ function App() {
           path="/settings"
           element={
             <PrivateRoute>
-              <Dashboard Children={<Settings />} />
+              <Dashboard Children={<Settings />} title={"Settings"} />
             </PrivateRoute>
           }
         />

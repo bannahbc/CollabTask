@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +42,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'tasks',
+    'channels',
+
 ]
 
 MIDDLEWARE = [
@@ -151,3 +154,12 @@ SIMPLE_JWT = {
         "REFRESH_TOKEN_LIFETIME": timedelta(days=1), # You can also adjust refresh token lifetime
         # ... other Simple JWT settings
     }
+
+
+ASGI_APPLICATION = 'CollabTask.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
